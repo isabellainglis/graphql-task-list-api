@@ -4,7 +4,7 @@ import type PrismaTypes from "@pothos/plugin-prisma/generated";
 import { Context, prisma } from "./context";
 
 export const builder = new SchemaBuilder<{
-  PrismaTypes: typeof PrismaTypes;
+  PrismaTypes: PrismaTypes;
   Context: Context;
 }>({
   plugins: [PrismaPlugin],
@@ -12,7 +12,5 @@ export const builder = new SchemaBuilder<{
     client: prisma,
   },
 });
-
-type TestPrismaTypes = PrismaTypes;
 
 builder.queryType({});
