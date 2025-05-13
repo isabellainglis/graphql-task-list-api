@@ -8,4 +8,13 @@ builder.prismaObject("Task", {
   }),
 });
 
+builder.queryField("tasks", (t) =>
+  t.prismaField({
+    type: ["Task"],
+    resolve: (query, _root, _args, ctx) => {
+      return ctx.prisma.task.findMany({ ...query });
+    },
+  })
+);
+
 builder.queryType({});
