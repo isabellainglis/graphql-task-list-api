@@ -18,5 +18,11 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@pothos/core": "^4.6.2",
+    "@pothos/plugin-prisma": "^4.8.1",
+    "@prisma/client": "^6.7.0",
+    "graphql": "^16.11.0"
   }
 }
