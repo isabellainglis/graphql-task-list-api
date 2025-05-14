@@ -85,3 +85,25 @@ builder.mutationField("toggleTask", (t) =>
     },
   })
 );
+
+builder.mutationField("deleteTask", (t) =>
+  t.prismaField({
+    type: "Task",
+    args: {
+      id: t.arg.id({ required: true }),
+    },
+    resolve: async (_query, _root, args, ctx) => {
+      const task = await ctx.prisma.task.findUnique({
+        where: { id: Number(args.id) },
+      });
+
+      if (!task) {
+        throw new Error(`Task with ID ${args.id} not found`);
+      }
+
+      return ctx.prisma.task.delete({
+        where: { id: Number(args.id) },
+      });
+    },
+  })
+);
