@@ -50,7 +50,11 @@ builder.mutationField("addTask", (t) =>
     args: {
       title: t.arg.string({ required: true }),
     },
-    resolve: (_query, _root, args, ctx) => {
+    resolve: async (_query, _root, args, ctx) => {
+      if (args.title.length <= 0) {
+        throw new Error("Please enter a task title");
+      }
+
       return ctx.prisma.task.create({
         data: {
           title: args.title,
@@ -68,8 +72,9 @@ builder.mutationField("toggleTask", (t) =>
       id: t.arg.id({ required: true }),
     },
     resolve: async (_query, _root, args, ctx) => {
+      const taskId = Number(args.id);
       const task = await ctx.prisma.task.findUnique({
-        where: { id: Number(args.id) },
+        where: { id: taskId },
       });
 
       if (!task) {
@@ -77,7 +82,7 @@ builder.mutationField("toggleTask", (t) =>
       }
 
       return ctx.prisma.task.update({
-        where: { id: Number(args.id) },
+        where: { id: taskId },
         data: {
           completed: !task.completed,
         },
@@ -93,8 +98,9 @@ builder.mutationField("deleteTask", (t) =>
       id: t.arg.id({ required: true }),
     },
     resolve: async (_query, _root, args, ctx) => {
+      const taskId = Number(args.id);
       const task = await ctx.prisma.task.findUnique({
-        where: { id: Number(args.id) },
+        where: { id: taskId },
       });
 
       if (!task) {
@@ -102,7 +108,7 @@ builder.mutationField("deleteTask", (t) =>
       }
 
       return ctx.prisma.task.delete({
-        where: { id: Number(args.id) },
+        where: { id: taskId },
       });
     },
   })
