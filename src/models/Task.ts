@@ -8,6 +8,9 @@ builder.prismaObject("Task", {
     createdAt: t.expose("createdAt", {
       type: "Date",
     }),
+    updatedAt: t.expose("updatedAt", {
+      type: "Date",
+    }),
   }),
 });
 
@@ -20,4 +23,23 @@ builder.queryField("tasks", (t) =>
   })
 );
 
-builder.queryType({});
+builder.queryField("task", (t) =>
+  t.prismaField({
+    type: "Task",
+    args: {
+      id: t.arg.id({ required: true }),
+    },
+    resolve: async (query, _root, args, ctx) => {
+      const task = await ctx.prisma.task.findUnique({
+        ...query,
+        where: { id: Number(args.id) },
+      });
+
+      if (!task) {
+        throw new Error(`Task with ID ${args.id} not found`);
+      }
+
+      return task;
+    },
+  })
+);
