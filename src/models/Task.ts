@@ -5,6 +5,9 @@ builder.prismaObject("Task", {
     id: t.exposeID("id"),
     title: t.exposeString("title"),
     completed: t.exposeBoolean("completed"),
+    createdAt: t.expose("createdAt", {
+      type: "Date",
+    }),
   }),
 });
 
