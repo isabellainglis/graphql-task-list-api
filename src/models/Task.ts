@@ -52,7 +52,7 @@ builder.mutationField("addTask", (t) =>
     },
     resolve: async (_query, _root, args, ctx) => {
       if (args.title.length <= 0) {
-        throw new Error("Please enter a task title");
+        throw new Error("Task title cannot be empty");
       }
 
       return ctx.prisma.task.create({
