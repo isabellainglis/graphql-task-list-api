@@ -43,3 +43,45 @@ builder.queryField("task", (t) =>
     },
   })
 );
+
+builder.mutationField("addTask", (t) =>
+  t.prismaField({
+    type: "Task",
+    args: {
+      title: t.arg.string({ required: true }),
+    },
+    resolve: (_query, _root, args, ctx) => {
+      return ctx.prisma.task.create({
+        data: {
+          title: args.title,
+          completed: false,
+        },
+      });
+    },
+  })
+);
+
+builder.mutationField("toggleTask", (t) =>
+  t.prismaField({
+    type: "Task",
+    args: {
+      id: t.arg.id({ required: true }),
+    },
+    resolve: async (_query, _root, args, ctx) => {
+      const task = await ctx.prisma.task.findUnique({
+        where: { id: Number(args.id) },
+      });
+
+      if (!task) {
+        throw new Error(`Task with ID ${args.id} not found`);
+      }
+
+      return ctx.prisma.task.update({
+        where: { id: Number(args.id) },
+        data: {
+          completed: !task.completed,
+        },
+      });
+    },
+  })
+);
