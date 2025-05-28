@@ -1,6 +1,7 @@
 import { beforeAll, expect, it } from "vitest";
 import { prisma } from "../src/context";
 import { createApolloServer } from "../src/server";
+import { unwrapResult } from "./utils/test-helpers";
 
 let server: ReturnType<typeof createApolloServer>;
 let createdTaskId: number;
@@ -37,14 +38,11 @@ it("fetches all tasks", async () => {
     }
   );
 
-  function getResult(res: any) {
-    return res.body.singleResult;
-  }
-
-  const result = getResult(res);
+  const result = unwrapResult(res);
+  const data = result.data as { tasks: { title: string }[] };
 
   expect(result.errors).toBeUndefined();
-  expect(result.data?.tasks[0].title).toBe("Test Task");
+  expect(data.tasks[0].title).toBe("Test Task");
 });
 
 it("fetches a single task by ID", async () => {
@@ -67,11 +65,7 @@ it("fetches a single task by ID", async () => {
     }
   );
 
-  function getResult(res: any) {
-    return res.body.singleResult;
-  }
-
-  const result = getResult(res);
+  const result = unwrapResult(res);
 
   expect(result.errors).toBeUndefined();
   expect(result.data?.task).toMatchObject({
