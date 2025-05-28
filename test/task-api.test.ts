@@ -3,13 +3,14 @@ import { prisma } from "../src/context";
 import { createApolloServer } from "../src/server";
 
 let server: ReturnType<typeof createApolloServer>;
+let createdTaskId: number;
 
 beforeAll(async () => {
   server = createApolloServer();
   await server.start();
 
   await prisma.task.deleteMany();
-  await prisma.task.create({
+  const task = await prisma.task.create({
     data: {
       title: "Test Task",
       completed: false,
@@ -17,17 +18,24 @@ beforeAll(async () => {
       updatedAt: new Date(),
     },
   });
+
+  createdTaskId = task.id;
 });
 
 it("fetches all tasks", async () => {
-  const res = await server.executeOperation({
-    query: `query {
+  const res = await server.executeOperation(
+    {
+      query: `query {
             tasks {
                 id
                 title
             }
         }`,
-  });
+    },
+    {
+      contextValue: { prisma },
+    }
+  );
 
   function getResult(res: any) {
     return res.body.singleResult;
@@ -37,4 +45,38 @@ it("fetches all tasks", async () => {
 
   expect(result.errors).toBeUndefined();
   expect(result.data?.tasks[0].title).toBe("Test Task");
+});
+
+it("fetches a single task by ID", async () => {
+  const res = await server.executeOperation(
+    {
+      query: `
+            query GetTask($id: ID!) {
+            task(id: $id) {
+            id
+            title
+            completed
+            }
+            }`,
+      variables: {
+        id: createdTaskId,
+      },
+    },
+    {
+      contextValue: { prisma },
+    }
+  );
+
+  function getResult(res: any) {
+    return res.body.singleResult;
+  }
+
+  const result = getResult(res);
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data?.task).toMatchObject({
+    id: String(createdTaskId),
+    title: "Test Task",
+    completed: false,
+  });
 });
